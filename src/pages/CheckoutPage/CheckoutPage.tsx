@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { RootState } from "../../redux/store/store";
 import { clearCart } from "../../redux/slices/cartSlices";
 import { useAppDispatch, useAppSelector } from "../../redux/store/hooks";
+import { insertAddToCart } from "../../redux/api/useApi";
 
 const CheckoutPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -11,7 +12,7 @@ const CheckoutPage: React.FC = () => {
     email: "",
     phone: "",
     address: "",
-    paymentMethod: "cod", // Default payment method
+    paymentMethod: "stripe", // Default payment method
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,18 +23,35 @@ const CheckoutPage: React.FC = () => {
   };
 
   const handlePlaceOrder = () => {
+    dispatch(insertAddToCart(cartItems))
+      .unwrap()
+      .then((/* fulfilled action */) => {
+        // Optionally handle success, e.g., show success message
+        console.log("Item added to cart successfully:", cartItems);
+      })
+      .catch((error) => {
+        // Handle any errors that occurred during the process
+        console.error("Failed to add item to cart:", error);
+        // Optionally display error message to user
+        alert("Failed to add item to cart. Please try again.");
+      });
     // Handle order placement logic
     dispatch(clearCart());
     alert("Order placed successfully!");
   };
 
-  const totalAmount = cartItems.reduce(
-    (acc, item) => acc + item.price! * item.quantity!,
-    0
-  );
+  const calculateTotal = () => {
+    if (Array.isArray(cartItems)) {
+      return cartItems.reduce((accumulator, item) => {
+        return accumulator + item.price! * (item.quantity! || 1);
+      }, 0);
+    } else {
+      return 0; // Or handle differently based on your application logic
+    }
+  };
 
   return (
-    <div className="checkout-page max-w-3xl mx-auto px-4 py-8">
+    <div className="checkout-page max-w-3xl mx-auto px-4 py-16">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
       <form className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -97,17 +115,6 @@ const CheckoutPage: React.FC = () => {
               <input
                 type="radio"
                 name="paymentMethod"
-                value="cod"
-                checked={userDetails.paymentMethod === "cod"}
-                onChange={handleChange}
-                className="form-radio"
-              />
-              <span>Cash on Delivery</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <input
-                type="radio"
-                name="paymentMethod"
                 value="stripe"
                 checked={userDetails.paymentMethod === "stripe"}
                 onChange={handleChange}
@@ -115,11 +122,22 @@ const CheckoutPage: React.FC = () => {
               />
               <span>Stripe</span>
             </label>
+            <label className="flex items-center space-x-2">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="cod"
+                checked={userDetails.paymentMethod === "cod"}
+                onChange={handleChange}
+                className="form-radio"
+              />
+              <span>Cash on Delivery</span>
+            </label>
           </div>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-xl font-semibold">
-            Total: ${totalAmount.toFixed(2)}
+            Total: ${calculateTotal().toFixed(2)}
           </p>
           <button
             type="button"
