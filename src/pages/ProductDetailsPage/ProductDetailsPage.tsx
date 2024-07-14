@@ -18,38 +18,37 @@ const ProductDetailsPage: React.FC = () => {
   }
 
   const handleAddToCart = () => {
+    // Assuming product is defined somewhere in your component
     if (product.stock > 0) {
+      // Dispatch action to add product to Redux store
       dispatch(addToCart(product));
 
-      // Retrieve cart products from localStorage
-      const storedProductsString = localStorage.getItem("CartProducts");
+      // Retrieve existing products from localStorage
+      const existingProductsJSON = localStorage.getItem("CartProducts");
+      let existingProducts: CartItem[] = [];
 
-      if (storedProductsString !== null) {
-        // Parse the JSON string to get the array of products
-        const localProducts = JSON.parse(storedProductsString);
+      // Parse existing products if they exist in localStorage
+      if (existingProductsJSON) {
+        existingProducts = JSON.parse(existingProductsJSON);
+      }
 
-        // Check for duplicates based on product _id
-        const checkDuplicate = localProducts.some(
-          (item: CartItem) => item._id === product._id
-        );
+      // Check if the product already exists in localStorage
+      const duplicateProduct = existingProducts.find(
+        (item) => item._id === product._id
+      );
 
-        if (!checkDuplicate) {
-          // Add the product to localProducts array
-          localProducts.push(product);
-
-          // Store updated cart products back to localStorage
-          localStorage.setItem("CartProducts", JSON.stringify(localProducts));
-        } else {
-          // Handle duplicate product scenario, if needed
-          console.log("Product is already in cart");
-        }
+      if (duplicateProduct) {
+        alert("This product is already added to your cart.");
       } else {
-        // Handle case where 'CartProducts' is not found in localStorage
-        console.log("No products found in cart");
+        // Add the new product to the existing products array
+        existingProducts.push(product);
+        // Update localStorage with the updated products array
+        localStorage.setItem("CartProducts", JSON.stringify(existingProducts));
+        alert("Product added to cart!");
+        dispatch(addToCart(product));
       }
     } else {
-      // Handle out of stock scenario, if needed
-      console.log("Product is out of stock");
+      alert("Product is out of stock.");
     }
   };
 

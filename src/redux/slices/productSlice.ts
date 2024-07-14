@@ -23,25 +23,21 @@ const initialState: ProductState = {
     error: null
 };
 
-// Define fetchProducts as an async thunk
-
-
 const productSlice = createSlice({
     name: 'products',
     initialState,
     reducers: {
-        // Optional: Add reducers for additional functionality
     },
     extraReducers: (builder) => {
         builder
             .addCase(fetchProducts.pending, (state) => {
                 state.status = 'loading';
-                state.error = null; // Reset error when starting to fetch
+                state.error = null;
             })
             .addCase(fetchProducts.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.products = action.payload;
-                state.error = null; // Reset error upon successful fetch
+                state.error = null;
             })
             .addCase(fetchProducts.rejected, (state, action) => {
                 state.status = 'failed';

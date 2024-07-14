@@ -18,6 +18,13 @@ const CartPage: React.FC = () => {
   };
 
   const handleRemove = (item: CartItem) => {
+    const localProductsJSON = localStorage.getItem("CartProducts");
+    if (localProductsJSON) {
+      let localProducts: CartItem[] = JSON.parse(localProductsJSON);
+      localProducts = localProducts.filter((prod) => prod._id !== item._id);
+      localStorage.setItem("CartProducts", JSON.stringify(localProducts));
+    }
+
     dispatch(removeCart(item));
   };
 
@@ -59,7 +66,7 @@ const CartPage: React.FC = () => {
                         <input
                           type="number"
                           className="w-20 px-2 py-1 border border-gray-300 rounded"
-                          value={item.quantity}
+                          value={item.quantity ? item.quantity : 1}
                           min="1"
                           max={item.stock}
                           onChange={(e) =>

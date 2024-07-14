@@ -4,7 +4,7 @@ export interface CartItem {
     _id: string;
     name?: string;
     price?: number;
-    quantity?: number;
+    quantity?: number | 1;
     stock?: number;
     imageUrl?: string
 }
@@ -12,17 +12,17 @@ interface CartState {
     items: CartItem[]
 }
 const initialState: CartState = {
-    items: []
+    items: JSON.parse(localStorage.getItem("CartProducts") || "[]"),
 }
 const cartSlice = createSlice({
     name: 'cart',
     initialState,
     reducers: {
         addToCart(state, action: PayloadAction<CartItem>) {
-            const item = state.items.find((item) => item.id === action.payload.id)
+            const item = state.items.find((item) => item._id === action.payload._id)
             if (item) {
-                if (item.quantity < item.stock) {
-                    item.quantity += 1
+                if (item.quantity! < item.stock!) {
+                    item.quantity! += 1
                 }
             } else {
                 state.items.push({ ...action.payload, quantity: 1 })
@@ -32,7 +32,7 @@ const cartSlice = createSlice({
             state.items = state.items.filter(item => item._id !== action.payload._id)
         },
         updateQuantity(state, action: PayloadAction<CartItem>) {
-            const item = state.items.find(item => item.id === action.payload.id)
+            const item = state.items.find(item => item._id === action.payload._id)
             if (item) {
                 item.quantity = action.payload.quantity
             }
