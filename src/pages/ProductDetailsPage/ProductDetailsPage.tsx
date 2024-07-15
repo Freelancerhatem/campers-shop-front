@@ -1,15 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { RootState } from "../../redux/store/store";
 import { addToCart, CartItem } from "../../redux/slices/cartSlices";
 import { useAppDispatch, useAppSelector } from "../../redux/store/hooks";
+import { fetchProducts } from "../../redux/api/useApi";
 
 const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
-  const product = useAppSelector((state: RootState) =>
-    state.products.products.find((product) => product._id === id)
+
+  // Fetch products and status from Redux store
+  const products = useAppSelector(
+    (state: RootState) => state.products.products
   );
+  const status = useAppSelector((state: RootState) => state.products.status);
+
+  // State to track local storage quantity
+  const [localStorageQuantity, setLocalStorageQuantity] = useState<number>(0);
+
+  // Fetch products when component mounts
+  useEffect(() => {
+    const fetchInitialProducts = async () => {
+      if (status === "idle") {
+        await dispatch(fetchProducts());
+      }
+    };
+
+    fetchInitialProducts();
+  }, [status, dispatch]);
+
+  // Find the product by id from Redux store
+  const product = products.find((product) => product._id === id);
+
+  useEffect(() => {
+    // Fetch existing products from localStorage
+    const existingProductsJSON = localStorage.getItem("CartProducts");
+    if (existingProductsJSON && product) {
+      const existingProducts: CartItem[] = JSON.parse(existingProductsJSON);
+      // Calculate total quantity of this product in localStorage
+      const quantityInCart = existingProducts.reduce((total, item) => {
+        if (item._id === product._id) {
+          return total + item.quantity!;
+        } else {
+          return total;
+        }
+      }, 0);
+      setLocalStorageQuantity(quantityInCart);
+    }
+  }, [product]);
 
   if (!product) {
     return (
@@ -18,35 +56,11 @@ const ProductDetailsPage: React.FC = () => {
   }
 
   const handleAddToCart = () => {
-    // Assuming product is defined somewhere in your component
-    if (product.stock > 0) {
-      // Dispatch action to add product to Redux store
+    if (product.stock > 0 && localStorageQuantity < product.stock) {
       dispatch(addToCart(product));
-
-      // Retrieve existing products from localStorage
-      const existingProductsJSON = localStorage.getItem("CartProducts");
-      let existingProducts: CartItem[] = [];
-
-      // Parse existing products if they exist in localStorage
-      if (existingProductsJSON) {
-        existingProducts = JSON.parse(existingProductsJSON);
-      }
-
-      // Check if the product already exists in localStorage
-      const duplicateProduct = existingProducts.find(
-        (item) => item._id === product._id
-      );
-
-      if (duplicateProduct) {
-        alert("This product is already added to your cart.");
-      } else {
-        // Add the new product to the existing products array
-        existingProducts.push(product);
-        // Update localStorage with the updated products array
-        localStorage.setItem("CartProducts", JSON.stringify(existingProducts));
-        alert("Product added to cart!");
-        dispatch(addToCart(product));
-      }
+      console.log("Product added to cart!");
+    } else if (localStorageQuantity >= product.stock) {
+      alert("You have reached the maximum quantity for this product.");
     } else {
       alert("Product is out of stock.");
     }
@@ -73,15 +87,19 @@ const ProductDetailsPage: React.FC = () => {
               </p>
               <p className="text-gray-700 mb-6">{product.description}</p>
               <button
-                className={`bg-red-500 text-white py-3 px-6 rounded-lg font-semibold uppercase ${
+                className={`bg-red-500 disabled:cursor-not-allowed disabled:bg-gray-500 text-white py-3 px-6 rounded-lg font-semibold uppercase ${
                   product.stock > 0
                     ? "hover:bg-red-600"
                     : "cursor-not-allowed opacity-50"
                 }`}
                 onClick={handleAddToCart}
-                disabled={product.stock <= 0}
+                disabled={
+                  product.stock === 0 || localStorageQuantity >= product.stock
+                }
               >
-                {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
+                {product.stock === 0 || localStorageQuantity >= product.stock
+                  ? "Out of Stock"
+                  : "Add to Cart"}
               </button>
             </div>
           </div>

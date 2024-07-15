@@ -20,7 +20,6 @@ const ProductsPage: React.FC = () => {
   }>({ min: null, max: null });
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  // Function to filter products based on category and price range
   useEffect(() => {
     let filtered = products.filter((product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase())
