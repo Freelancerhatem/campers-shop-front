@@ -25,17 +25,15 @@ const CheckoutPage: React.FC = () => {
   const handlePlaceOrder = () => {
     dispatch(insertAddToCart(cartItems))
       .unwrap()
-      .then((/* fulfilled action */) => {
-        // Optionally handle success, e.g., show success message
+      .then(() => {
         console.log("Item added to cart successfully:", cartItems);
       })
       .catch((error) => {
-        // Handle any errors that occurred during the process
         console.error("Failed to add item to cart:", error);
-        // Optionally display error message to user
+
         alert("Failed to add item to cart. Please try again.");
       });
-    // Handle order placement logic
+
     dispatch(clearCart());
     alert("Order placed successfully!");
   };
@@ -46,7 +44,7 @@ const CheckoutPage: React.FC = () => {
         return accumulator + item.price! * (item.quantity! || 1);
       }, 0);
     } else {
-      return 0; // Or handle differently based on your application logic
+      return 0;
     }
   };
 

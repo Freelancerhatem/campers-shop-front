@@ -24,7 +24,7 @@ export const insertAddToCart = createAsyncThunk<CartItem[], CartItem>(
     'cart/insertAddToCart',
     async (cartItem: CartItem) => {
 
-        const response = await AxiosLoader.post('/api/cart', cartItem);
+        const response = await AxiosLoader.post('/api/cart', { cartItem });
         return response.data as CartItem[];
 
     }
