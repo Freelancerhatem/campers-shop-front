@@ -83,7 +83,7 @@ const ProductDetailsPage: React.FC = () => {
                 {product.name}
               </h1>
               <p className="text-gray-600 text-lg mb-4">
-                ${product.price.toFixed(2)} USD
+                ${product.price!.toFixed(2)} USD
               </p>
               <p className="text-gray-700 mb-6">{product.description}</p>
               <button

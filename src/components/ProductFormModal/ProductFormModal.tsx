@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { addProduct, updateProduct } from "../../redux/slices/productSlice";
 import { Product } from "../../redux/slices/productSlice";
+import {
+  addProductAsync,
+  fetchProducts,
+  fetchProductsAsync,
+  updateProductAsync,
+} from "../../redux/api/useApi";
 
 interface ProductFormModalProps {
   product: Product | null;
@@ -17,7 +22,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
     _id: product?._id || "",
     name: product?.name || "",
     price: product?.price || 0,
-    category: product?.category || "",
+    category: product?.category || "", // Default value is empty string
     description: product?.description || "",
     imageUrl: product?.imageUrl || "",
     stock: product?.stock || 0,
@@ -35,14 +40,23 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (product) {
-      dispatch(updateProduct(formData));
-    } else {
-      dispatch(addProduct(formData));
+    try {
+      if (product) {
+        await dispatch(
+          updateProductAsync({ productId: formData._id, productData: formData })
+        );
+      } else {
+        await dispatch(addProductAsync(formData));
+      }
+      // After update or add, fetch the updated products
+      await dispatch(fetchProducts());
+      onClose();
+    } catch (error) {
+      console.error("Error:", error);
+      // Handle error state or feedback to the user
     }
-    onClose();
   };
 
   return (
@@ -76,14 +90,18 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
           </div>
           <div className="mb-4">
             <label className="block mb-2">Category</label>
-            <input
-              type="text"
+            <select
               name="category"
               value={formData.category}
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded"
               required
-            />
+            >
+              <option value="">Select category</option>
+              <option value="electronics">Electronics</option>
+              <option value="clothing">Cloth</option>
+              <option value="books">Book</option>
+            </select>
           </div>
           <div className="mb-4">
             <label className="block mb-2">Description</label>

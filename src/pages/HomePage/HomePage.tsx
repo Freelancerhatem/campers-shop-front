@@ -3,8 +3,8 @@ import Hero from "../../components/Hero/Hero";
 import BestProduct from "../../components/BestProduct/BestProduct";
 import Category from "../../components/Category/Category";
 import Featured from "../../components/Featured/Featured";
-import Unique from "../../components/Unique/Unique";
 import Faq from "../../components/Faq/Faq";
+import TestimonialSlider from "../../components/TestimonialSlider/TestimonialSlider";
 
 const HomePage: React.FC = () => {
   return (
@@ -13,7 +13,7 @@ const HomePage: React.FC = () => {
       <BestProduct></BestProduct>
       <Category></Category>
       <Featured></Featured>
-      <Unique></Unique>
+      <TestimonialSlider></TestimonialSlider>
       <Faq></Faq>
     </div>
   );

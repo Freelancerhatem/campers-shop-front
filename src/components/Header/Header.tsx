@@ -55,6 +55,15 @@ const Header: React.FC = () => {
             </li>
             <li>
               <Link
+                to="/products/management"
+                className="text-gray-800 hover:text-gray-600 py-2 px-6"
+                onClick={closeDrawer}
+              >
+                Manage Product
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/about"
                 className="text-gray-800 hover:text-gray-600"
                 onClick={closeDrawer}
@@ -112,6 +121,13 @@ const Header: React.FC = () => {
             onClick={closeDrawer}
           >
             Products
+          </Link>
+          <Link
+            to="/products/management"
+            className="text-gray-800 hover:text-gray-600 py-2 px-6"
+            onClick={closeDrawer}
+          >
+            Manage Product
           </Link>
           <Link
             to="/about"

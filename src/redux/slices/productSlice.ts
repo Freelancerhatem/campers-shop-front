@@ -2,13 +2,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { addProductAsync, deleteProductAsync, fetchProducts, updateProductAsync } from "../api/useApi";
 
 export interface Product {
-    _id: string;
-    name: string;
-    price: number;
-    category: string;
-    stock: number;
-    description: string;
-    imageUrl: string;
+    _id: string | undefined;
+    name?: string;
+    price?: number;
+    category?: string;
+    stock?: number;
+    description?: string;
+    imageUrl?: string;
 }
 
 interface ProductState {
